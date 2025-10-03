@@ -1,0 +1,522 @@
+{
+	"info": {
+		"_postman_id": "edcc07ae-6607-4ae9-b9d2-2228c821d758",
+		"name": "Flujo Completo",
+		"description": "Colección con flujo completo (register/login, products, carts, purchase) y scripts que guardan variables (pid, cid, tid).",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "19361411"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register (admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"first_name\": \"Jesus\",\n  \"last_name\": \"User\",\n  \"email\": \"jesus@example.com\",\n  \"age\": 30,\n  \"password\": \"secret\",\n  \"role\": \"admin\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/sessions/register",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"sessions",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Postman guardará automáticamente la cookie JWT si el dominio/puerto coinciden.",
+									"pm.test('Login OK', function () {",
+									"  pm.response.to.have.status(200);",
+									"});"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"jesus@example.com\",\n  \"password\": \"secret\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/sessions/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"sessions",
+								"login"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Current (DTO)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/sessions/current",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"sessions",
+								"current"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/auth/sessions/logout",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"sessions",
+								"logout"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Password Reset",
+			"item": [
+				{
+					"name": "Forgot (send email)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"jesus@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/password/forgot",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"password",
+								"forgot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Reset (use token from email)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"uid\": \"<paste uid>\",\n  \"token\": \"<paste token>\",\n  \"newPassword\": \"newSecret123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/password/reset",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"password",
+								"reset"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Create Product (admin)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let json = {};",
+									"try { json = pm.response.json() } catch(e){}",
+									"const pid = json?.payload?._id || json?.payload?.id;",
+									"if (pid) {",
+									"  pm.collectionVariables.set('pid', pid);",
+									"  console.log('pid set =>', pid);",
+									"}",
+									"pm.test('Creado producto', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });"
+								],
+								"type": "text/javascript",
+								"packages": {},
+								"requests": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"title\": \"Blackboard\",\n  \"description\": \"Mech\",\n  \"code\": \"PO124\",\n  \"price\": 95.9,\n  \"stock\": 20,\n  \"category\": \"peripherals\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "List Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Product by PID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/products/{{pid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"products",
+								"{{pid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Carts & Purchase",
+			"item": [
+				{
+					"name": "Create Cart",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let json = {};",
+									"try { json = pm.response.json() } catch(e){}",
+									"const cid = json?.payload?._id || json?.payload?.id;",
+									"if (cid) {",
+									"  pm.collectionVariables.set('cid', cid);",
+									"  console.log('cid set =>', cid);",
+									"}",
+									"pm.test('Creado carrito', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/carts",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Product to Cart",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 2\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/carts/{{cid}}/products/{{pid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"{{cid}}",
+								"products",
+								"{{pid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Cart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/carts/{{cid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"{{cid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Qty",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 5\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/carts/{{cid}}/products/{{pid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"{{cid}}",
+								"products",
+								"{{pid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Remove Product from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/carts/{{cid}}/products/{{pid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"{{cid}}",
+								"products",
+								"{{pid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Add Again (qty 1)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/carts/{{cid}}/products/{{pid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"{{cid}}",
+								"products",
+								"{{pid}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Purchase Cart (requires auth cookie)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"let json = {};",
+									"try { json = pm.response.json() } catch(e){}",
+									"const tid = json?.payload?._id || json?.payload?.id;",
+									"if (tid) {",
+									"  pm.collectionVariables.set('tid', tid);",
+									"  console.log('tid set =>', tid);",
+									"}",
+									"pm.test('Compra/ticket OK', function(){ pm.expect(pm.response.code).to.be.oneOf([200,201]); });"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/carts/{{cid}}/purchase",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"carts",
+								"{{cid}}",
+								"purchase"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Ticket by TID (auth)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/api/tickets/{{tid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"tickets",
+								"{{tid}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000"
+		},
+		{
+			"key": "pid",
+			"value": ""
+		},
+		{
+			"key": "cid",
+			"value": ""
+		},
+		{
+			"key": "tid",
+			"value": ""
+		}
+	]
+}

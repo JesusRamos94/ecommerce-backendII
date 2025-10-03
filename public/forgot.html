@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<title>Olvidé mi contraseña</title>
+<form id="f" style="display:grid;gap:8px;max-width:360px;margin:40px auto">
+    <input id="email" type="email" placeholder="tu@correo.com" required />
+    <button>Enviar link</button>
+    <div id="msg"></div>
+</form>
+<script>
+    document.getElementById('f').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value.trim();
+        const msg = document.getElementById('msg');
+        msg.textContent = 'Enviando...';
+        try {
+            const res = await fetch('/auth/password/forgot', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.message || 'Error');
+            msg.textContent = 'Si el correo existe, recibirás un enlace en minutos.';
+        } catch (err) { msg.textContent = err.message; }
+    });
+</script>
+
+</html>

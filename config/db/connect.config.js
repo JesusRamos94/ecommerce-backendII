@@ -1,42 +1,23 @@
-import mongoose from "mongoose";
-import dotenv from 'dotenv';
-dotenv.config();
+import mongoose from 'mongoose';
 
-const baseMongoseeOpts = { serverSelectionTimeoutMS: 10000 }
+const baseMongooseOpts = {
+  serverSelectionTimeoutMS: 10000,
+  bufferCommands: false
+};
 
 export const connectDB = async () => {
-    try {
-        const uri = process.env.MONGO_URI;
-        if (!uri) {
-            throw new Error("MONGO_URI is not defined in environment variables");
-        }
-        await mongoose.connect(uri, baseMongoseeOpts);
-        console.log("Database connected successfully");
-    } catch (error) {
-        console.error("Database connection failed:", error);
-        process.exit(1);
-    }
-}
-export const connectMongoDBAtlas = async () => {
-    try {
-        const uri = process.env.MONGO_URI_ATLAS;
-        if (!uri) {
-            throw new Error("MONGO_URI_ATLAS is not defined in environment variables");
-        }
-        await mongoose.connect(uri, baseMongoseeOpts);
-        console.log("MongoDB Atlas connected successfully");
+  const uri = process.env.MONGO_URI;
+  if (!uri) throw Object.assign(new Error('MONGO_URI is not defined'), { status: 500 });
+  await mongoose.connect(uri, baseMongooseOpts);
+  console.log('🗄️  MongoDB conectado');
+};
 
-    } catch (error) {
-        console.error("Database connection failed:", error);
-        process.exit(1);
-    }
-}
+export const connectMongoDBAtlas = async () => {
+  return connectDB();
+};
 
 export const connectAuto = async () => {
-    const target = (process.env.MONGO_TARGET || "LOCAL").toUpperCase();
-    if (target === "ATLAS") {
-        await connectMongoDBAtlas();
-    } else {
-        await connectDB();
-    }
-}
+  const target = (process.env.MONGO_TARGET || 'LOCAL').toUpperCase();
+  if (target === 'ATLAS') await connectMongoDBAtlas();
+  else await connectDB();
+};
